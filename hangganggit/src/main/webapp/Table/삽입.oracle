@@ -1,0 +1,27 @@
+-- 사용자 데이터 삽입
+INSERT INTO HG_user_table (id, pw, name, role, email) 
+VALUES ('admin', 'adminpw', '어드민', 'admin', 'admin@example.com');
+
+INSERT INTO HG_user_table (id, pw, name, role, email) 
+VALUES ('kimSeoHo', '1234', '김세호', 'user', 'kimseokho@example.com');
+
+-- 게시물 데이터 삽입
+INSERT INTO HG_post_table (writer, title, content, regtime, hits, recommend, disrecommend, comments, type)
+VALUES ('admin', '현재 일본 엔화 가치 하락', 
+        '현재 일본은 엔화의 가치가 많이 떨어졌습니다! 가성비 좋은 여행이 가능합니다. 다만, 무더운 날씨로 인해 쾌적한 여행은 힘들 수 있습니다. 이것에 주의해주세요!', 
+        NOW(), 100, 10, 2, NULL, 'notice');
+
+INSERT INTO HG_post_table (writer, title, content, regtime, hits, recommend, disrecommend, comments, type)
+VALUES ('kimSeoHo', '여름 항공권 할인 안내', 
+        '여름 시즌을 맞아 항공권에 대한 대규모 할인 이벤트가 진행됩니다. 할인 혜택을 놓치지 마세요!', 
+        NOW(), 50, 5, 0, NULL, 'announcement');
+
+INSERT INTO HG_post_table (writer, title, content, regtime, hits, recommend, disrecommend, comments, type)
+VALUES ('admin', '새로운 여행지 추천', 
+        '새로운 여행지로 스페인과 이탈리아를 추천합니다. 다양한 문화와 음식, 아름다운 경치를 경험해보세요!', 
+        NOW(), 75, 7, 1, NULL, 'recommendation');
+
+INSERT INTO HG_post_table (writer, title, content, regtime, hits, recommend, disrecommend, comments, type)
+VALUES ('kimSeoHo', '항공사 리뷰', 
+        '항공사 리뷰 및 고객 서비스에 대한 정보를 제공합니다. 항공사 선택에 도움이 될 것입니다.', 
+        NOW(), 30, 2, 0, NULL, 'review');
