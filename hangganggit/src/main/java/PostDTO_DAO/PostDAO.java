@@ -51,24 +51,27 @@ public class PostDAO {
     }
     
     //게시판 수정
-    public void updatePost(PostDTO dto) {
-        conn = MYSQLUtil.getConnection();
-        try {
-            stmt = conn.prepareStatement(POST_UPDATE);
-            stmt.setString(1, dto.getWriter());
-            stmt.setString(2, dto.getTitle());
-            stmt.setString(3, dto.getContent());
-            stmt.setInt(4, dto.getHits());
-            stmt.setInt(5, dto.getRecommend());
-            stmt.setInt(6, dto.getDisrecommend());
-            stmt.setString(7, dto.getComments());
-            stmt.setString(8, dto.getType());
-            stmt.setInt(9, dto.getNum());
-            stmt.executeUpdate();
+    public boolean updatePost(PostDTO dto) {
+        String UPDATE_POST_SQL = "UPDATE HG_post_table SET writer = ?, title = ?, content = ?, regtime = now(), hits = ?, recommend = ?, disrecommend = ?, comments = ?, type = ? WHERE num = ?";
+
+        try (Connection conn = MYSQLUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(UPDATE_POST_SQL)) {
+
+            pstmt.setString(1, dto.getWriter());
+            pstmt.setString(2, dto.getTitle());
+            pstmt.setString(3, dto.getContent());
+            pstmt.setInt(4, dto.getHits());
+            pstmt.setInt(5, dto.getRecommend());
+            pstmt.setInt(6, dto.getDisrecommend());
+            pstmt.setString(7, dto.getComments());
+            pstmt.setString(8, dto.getType());
+            pstmt.setInt(9, dto.getNum());
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            MYSQLUtil.close(stmt, conn);
+            return false;
         }
     }
     

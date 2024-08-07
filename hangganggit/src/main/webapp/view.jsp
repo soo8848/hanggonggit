@@ -1,9 +1,10 @@
-<%@page import="PostDTO_DAO.PostDTO"%>
-<%@page import="PostDTO_DAO.PostDAO"%>
+<%@ page import="PostDTO_DAO.PostDTO" %>
+<%@ page import="PostDTO_DAO.PostDAO" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     request.setCharacterEncoding("UTF-8");
     String numStr = request.getParameter("num");
+
     if (numStr == null || numStr.isEmpty()) {
         response.sendRedirect("list.jsp");
         return;
@@ -11,12 +12,38 @@
 
     int num = Integer.parseInt(numStr);
     PostDAO dao = new PostDAO();
+
+    // 게시물 조회 및 조회수 증가
     dao.increaseHits(num);
     PostDTO dto = dao.getOne(num);
 
     if (dto == null) {
         response.sendRedirect("list.jsp");
         return;
+    }
+
+    // 댓글 추가 처리
+    String newComment = request.getParameter("newComment");
+    if (newComment != null && !newComment.trim().isEmpty()) {
+        String comments = dto.getComments();
+        if (comments == null) {
+            comments = "";
+        }
+        comments += "<div>" + newComment + "</div>";
+        dto.setComments(comments);
+        dao.updatePost(dto);
+    }
+
+    // 댓글 삭제 처리
+    String deleteComment = request.getParameter("deleteComment");
+    if (deleteComment != null && !deleteComment.trim().isEmpty()) {
+        String comments = dto.getComments();
+        if (comments != null && !comments.isEmpty()) {
+            String decodedDeleteComment = java.net.URLDecoder.decode(deleteComment, "UTF-8");
+            comments = comments.replace("<div>" + decodedDeleteComment + "</div>", "");
+            dto.setComments(comments);
+            dao.updatePost(dto);
+        }
     }
 %>
 <!DOCTYPE html>
@@ -114,6 +141,40 @@
         .comment-section {
             margin-top: 20px;
         }
+        .comment-section textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .comment-section button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2196F3;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .comment-section button:hover {
+            background-color: #0b7dda;
+        }
+        .comment-section .comment {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .comment-section .comment a {
+            color: #e74c3c;
+            text-decoration: none;
+        }
+        .comment-section .comment a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -161,11 +222,30 @@
 
     <div class="comment-section">
         <h3>댓글</h3>
-        <form method="post" action="addComment.jsp">
-            <textarea name="comment" rows="4" placeholder="댓글을 입력하세요..."></textarea>
-            <input type="hidden" name="postId" value="<%=dto.getNum()%>">
+        <form method="post" action="view.jsp">
+            <textarea name="newComment" rows="4" placeholder="댓글을 입력하세요..."></textarea>
+            <input type="hidden" name="num" value="<%=dto.getNum()%>">
             <button type="submit">댓글 추가</button>
         </form>
+        <div>
+            <% 
+                String comments = dto.getComments();
+                if (comments != null && !comments.isEmpty()) {
+                    String[] commentArray = comments.split("</div>");
+                    for (String comment : commentArray) {
+                        if (!comment.trim().isEmpty()) {
+                            comment = comment.trim() + "</div>";
+                            out.println("<div class='comment'>" + comment + 
+                                "<form action='view.jsp' method='post' style='display:inline;'>"
+                                + "<input type='hidden' name='num' value='" + dto.getNum() + "'>"
+                                + "<input type='hidden' name='deleteComment' value='" + java.net.URLEncoder.encode(comment, "UTF-8") + "'>"
+                                + "<button type='submit'>삭제</button>"
+                                + "</form></div>");
+                        }
+                    }
+                } 
+            %>
+        </div>
     </div>
 </div>
 
